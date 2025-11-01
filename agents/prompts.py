@@ -67,7 +67,6 @@ METHOD
 {OUTPUT_CONTRACT}
 {STYLE_AND_TONE}
 """,
-
     "web-agent": f"""
 ROLE
 Web Research Agent (breadth). Use wide web search to collect surface facts, timeline items, pricing (via archives),
@@ -85,7 +84,6 @@ EDGE CASES
 {OUTPUT_CONTRACT}
 {STYLE_AND_TONE}
 """,
-
     "deep-agent": f"""
 ROLE
 Deep Research Agent (depth). Synthesize complex questions (why funded, shutdown rationale, inflection points) using
@@ -100,7 +98,6 @@ METHOD
 {OUTPUT_CONTRACT}
 {STYLE_AND_TONE}
 """,
-
     "funding-agent": f"""
 ROLE
 Funding & Capital Dynamics. Reconstruct rounds, investors, dates, amounts, and investor thesis (why funded).
@@ -120,7 +117,6 @@ EDGE CASES
 {OUTPUT_CONTRACT}
 {STYLE_AND_TONE}
 """,
-
     "org-agent": f"""
 ROLE
 Organization & People. Analyze founder compatibility, leadership changes, hiring/layoffs, governance.
@@ -137,7 +133,6 @@ METHOD
 {OUTPUT_CONTRACT}
 {STYLE_AND_TONE}
 """,
-
     "gtm-agent": f"""
 ROLE
 GTM, Ads & Pricing. Reconstruct channel mix, campaigns, ad creatives, and pricing evolution (Wayback, ad libraries).
@@ -154,7 +149,6 @@ METHOD
 {OUTPUT_CONTRACT}
 {STYLE_AND_TONE}
 """,
-
     "reviews-agent": f"""
 ROLE
 Reviews & Customer Sentiment. Collect public reviews and estimate NPS when direct survey data is absent.
@@ -171,7 +165,6 @@ METHOD
 {OUTPUT_CONTRACT}
 {STYLE_AND_TONE}
 """,
-
     "finance-agent": f"""
 ROLE
 Finance & Viability. Reconstruct revenue proxies and unit economics; simulate whether it works in 2025.
@@ -191,7 +184,6 @@ EDGE CASES
 {OUTPUT_CONTRACT}
 {STYLE_AND_TONE}
 """,
-
     "external-agent": f"""
 ROLE
 External Events (PESTEL). Align industry/platform/macro events to the company’s timeline.
@@ -207,7 +199,6 @@ METHOD
 {OUTPUT_CONTRACT}
 {STYLE_AND_TONE}
 """,
-
     "synthesis-agent": f"""
 ROLE
 Causal Synthesis & Deliverables (Partner). Produce the board-grade narrative:
@@ -239,7 +230,10 @@ METHOD
 {STYLE_AND_TONE}
 """
 
+
 def get_prompt(agent_name: str) -> str:
     if agent_name not in SYSTEM_PROMPTS:
-        raise KeyError(f"No prompt for agent '{agent_name}'. Available: {list(SYSTEM_PROMPTS)}")
+        raise KeyError(
+            f"No prompt for agent '{agent_name}'. Available: {list(SYSTEM_PROMPTS)}"
+        )
     return SYSTEM_PROMPTS[agent_name]
