@@ -1,5 +1,7 @@
-import requests
 import json
+
+import requests
+
 
 def main():
     url = "https://yc-oss.github.io/api/companies/all.json"
@@ -28,6 +30,11 @@ def main():
         # Prepare metadata (copy all fields except slug)
         metadata = {k: v for k, v in company.items() if k != "slug"}
 
+        # Convert any array values in metadata to comma-separated strings
+        for k, v in metadata.items():
+            if isinstance(v, list):
+                metadata[k] = ", ".join(str(item) for item in v)
+
         # Build output object
         out_json = {
             "id": _id,
@@ -41,6 +48,7 @@ def main():
         json.dump(output_data, fout, ensure_ascii=False, indent=2)
 
     print(f"Done. Written {written_count} records to {output_file}")
+
 
 if __name__ == "__main__":
     main()

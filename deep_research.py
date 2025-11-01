@@ -1,8 +1,8 @@
 from deepagents import create_deep_agent
 from dotenv import load_dotenv
-from tools import deep_research, web_search, get_company_details
 
 from prompts import get_prompt
+from tools import deep_research, get_company_details, save_result, web_search
 
 load_dotenv()
 
@@ -97,14 +97,9 @@ subagents = [
 ]
 
 agent = create_deep_agent(
+    tools=[save_result],
     model="openai:gpt-4o-mini",  # default model for agents without overrides
     system_prompt=get_prompt("research-orchestrator-system-prompt"),
     subagents=subagents,
     debug=True,
 )
-
-# Test query function for validation
-def test_research(company_query: str):
-    """Test the research agent with a company query."""
-    result = agent.run(company_query)
-    return result

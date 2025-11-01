@@ -11,7 +11,7 @@ The research agent system has been updated to produce $100,000 executive-quality
 
 ### Agents Defined in `prompts.py`:
 1. ✅ scoping-agent
-2. ✅ web-agent  
+2. ✅ web-agent
 3. ✅ deep-agent
 4. ✅ funding-agent
 5. ✅ org-agent
@@ -43,13 +43,13 @@ Added in 4 key locations:
 
 1. **RESEARCH_AGENT_FORMAT** (line 56-57):
    ```
-   QUALITY STANDARD: This is a $100,000 executive research report. Reference reports/fetchr-research-report.md as the 
+   QUALITY STANDARD: This is a $100,000 executive research report. Reference reports/fetchr-research-report.md as the
    gold standard example for depth, specificity, and narrative quality.
    ```
 
 2. **synthesis-agent prompt** (line 977-978):
    ```
-   QUALITY MANDATE: You are producing a $100,000 executive research report. Study reports/fetchr-research-report.md 
+   QUALITY MANDATE: You are producing a $100,000 executive research report. Study reports/fetchr-research-report.md
    as the gold standard example. Match its depth, specificity, narrative quality, and use of concrete evidence.
    ```
 
@@ -252,4 +252,3 @@ A research report in `reports/homejoy-research-report.md` that:
 All systems configured. All agents aligned. Quality standards implemented.
 
 **The research agent is ready to produce $100,000 executive-quality reports.**
-

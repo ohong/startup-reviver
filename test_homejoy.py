@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Test script for Homejoy research query"""
 
-from deep_research import agent
 import sys
 import traceback
+
+from deep_research import agent
+
 
 def main():
     print("=" * 80)
@@ -17,23 +19,23 @@ def main():
     print("- Final output matches the quality bar")
     print("\n" + "=" * 80)
     print("\nExecuting research agent...\n")
-    
+
     try:
         result = agent.run("explain what happened to homejoy")
-        
+
         print("\n" + "=" * 80)
         print("RESEARCH COMPLETED SUCCESSFULLY")
         print("=" * 80)
         print("\n" + result)
-        
+
         # Save to file
         output_file = "reports/homejoy-research-report.md"
-        with open(output_file, 'w') as f:
+        with open(output_file, "w") as f:
             f.write(result)
         print(f"\n\nReport saved to: {output_file}")
-        
+
         return 0
-        
+
     except Exception as e:
         print("\n" + "=" * 80)
         print("ERROR OCCURRED")
@@ -43,6 +45,6 @@ def main():
         traceback.print_exc()
         return 1
 
+
 if __name__ == "__main__":
     sys.exit(main())
-

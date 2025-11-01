@@ -1,26 +1,27 @@
+import os
 
 from dotenv import load_dotenv
 from hyperspell import Hyperspell
+from langchain_core.tools import tool
 from openai import OpenAI
 from perplexity import Perplexity
-import os
-from langchain_core.tools import tool
 
 load_dotenv()
 
-hyperspell_client = Hyperspell(api_key=os.getenv("HYPERSPELL_API_KEY"), user_id="startup-reviver")
+hyperspell_client = Hyperspell(
+    api_key=os.getenv("HYPERSPELL_API_KEY"), user_id="startup-reviver"
+)
 
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 perplexity_client = Perplexity(api_key=os.getenv("PERPLEXITY_API_KEY"))
 
+
 @tool
 def get_company_details(company_name: str):
     """Get company details from the Hyperspell index"""
     try:
-        search_result = hyperspell_client.memories.search(
-            query=company_name
-        )
+        search_result = hyperspell_client.memories.search(query=company_name)
 
         full_details = hyperspell_client.memories.get(
             resource_id=search_result.documents[0].resource_id,
@@ -32,6 +33,7 @@ def get_company_details(company_name: str):
     except Exception as e:
         return f"ERROR: {e}"
 
+
 @tool
 def web_search(query: str):
     """Breadth web search via Perplexity; returns a normalized list of {title,url,snippet}."""
@@ -42,6 +44,7 @@ def web_search(query: str):
 
     except Exception as e:
         return f"ERROR: {e}"
+
 
 @tool
 def deep_research(query: str):
@@ -69,3 +72,10 @@ def deep_research(query: str):
         return str(r)
     except Exception as e:
         return f"ERROR: {e}"
+
+
+@tool
+def save_result(result: str):
+    """Save the result to a file"""
+    with open("reports/report.md", "w", encoding="utf-8") as f:
+        f.write(result)
