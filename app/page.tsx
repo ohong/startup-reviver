@@ -2,9 +2,10 @@
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Search } from "lucide-react";
 import { mockStartups, type Startup } from "@/lib/mock-data";
-import { cn } from "@/lib/utils";
+import { slugifyName } from "@/lib/utils";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -194,6 +195,12 @@ export default function Home() {
   );
 }
 
+const PlusIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8 1V15M1 8H15" stroke="var(--ink-400)" strokeWidth="2" strokeLinecap="square" />
+  </svg>
+);
+
 // Corner accent component for the brutalist aesthetic
 function CornerAccents() {
   const cornerStyle = {
@@ -201,12 +208,6 @@ function CornerAccents() {
     width: "16px",
     height: "16px",
   };
-
-  const PlusIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M8 1V15M1 8H15" stroke="var(--ink-400)" strokeWidth="2" strokeLinecap="square"/>
-    </svg>
-  );
 
   return (
     <>
@@ -228,9 +229,11 @@ interface StartupCardProps {
 
 function StartupCard({ startup }: StartupCardProps) {
   const isInactive = startup.status === "Inactive";
+  const href = `/companies/${slugifyName(startup.name)}`;
 
   return (
-    <div
+    <Link
+      href={href}
       className="group relative flex h-full flex-col overflow-hidden transition-transform hover:translate-y-[-2px]"
       style={{
         background: "#fff",
@@ -355,6 +358,6 @@ function StartupCard({ startup }: StartupCardProps) {
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
