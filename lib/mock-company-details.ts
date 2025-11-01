@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { mockStartups, type Startup } from "./mock-data";
 import { slugifyName } from "./utils";
+import { type YCStartup } from "./meilisearch";
 
 const REPORTS_DIR = path.join(process.cwd(), "examples");
 const REPORT_SUFFIX = "-report.md";
@@ -419,8 +420,26 @@ const detailIndex: Record<string, CompanyDetails> = mockStartups.reduce(
   {} as Record<string, CompanyDetails>
 );
 
-export function getCompanyDetails(slug: string): CompanyDetails | undefined {
+/**
+ * Convert YCStartup from Meilisearch to Startup type
+ */
+function convertYCStartupToStartup(ycStartup: YCStartup): Startup {
+  return {
+    slug: ycStartup.slug || slugifyName(ycStartup.name || ""),
+    name: ycStartup.name || "",
+    small_logo_thumb_url: ycStartup.small_logo_thumb_url || `https://www.ycombinator.com/companies/${ycStartup.slug}/card_image`,
+    one_liner: ycStartup.one_liner || "",
+    batch: ycStartup.batch || "Unknown",
+    launched_at: ycStartup.launched_at || Math.floor(Date.now() / 1000),
+    website: ycStartup.website || `https://www.ycombinator.com/companies/${ycStartup.slug}`,
+    status: ycStartup.status || "Active",
+  };
+}
+
+export async function getCompanyDetails(slug: string): Promise<CompanyDetails | undefined> {
   const normalized = slugifyName(slug);
+  
+  // First, try to load from report markdown
   const reportDetails = loadReportDetails(normalized);
   if (reportDetails) {
     detailIndex[normalized] = reportDetails;
@@ -429,7 +448,33 @@ export function getCompanyDetails(slug: string): CompanyDetails | undefined {
     return reportDetails;
   }
 
-  return detailIndex[normalized] ?? detailIndex[slug];
+  // Check in-memory cache
+  if (detailIndex[normalized] || detailIndex[slug]) {
+    return detailIndex[normalized] ?? detailIndex[slug];
+  }
+
+  // Try to fetch from API
+  try {
+    const response = await fetch(`/api/startups/${encodeURIComponent(slug)}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.startup) {
+        const startup = convertYCStartupToStartup(data.startup);
+        const details = buildDetails(startup);
+        
+        // Cache the result
+        detailIndex[normalized] = details;
+        detailIndex[startup.slug] = details;
+        detailIndex[slugifyName(startup.name)] = details;
+        
+        return details;
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching startup from API:", error);
+  }
+
+  return undefined;
 }
 
 export const companySectionOrder = defaultSectionOrder.map((section) => ({

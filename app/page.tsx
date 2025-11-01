@@ -1,36 +1,53 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Search } from "lucide-react";
-import { mockStartups, type Startup } from "@/lib/mock-data";
+import { type YCStartup } from "@/lib/meilisearch";
 import { slugifyName } from "@/lib/utils";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [startups, setStartups] = useState<YCStartup[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Filter startups based on search query
-  const filteredStartups = useMemo(() => {
-    if (!searchQuery.trim()) return [];
+  // Fetch startups from API when search query changes
+  useEffect(() => {
+    const fetchStartups = async () => {
+      if (!searchQuery.trim()) {
+        setStartups([]);
+        return;
+      }
 
-    const query = searchQuery.toLowerCase();
-    return mockStartups.filter(
-      (startup) =>
-        startup.name.toLowerCase().includes(query) ||
-        startup.one_liner.toLowerCase().includes(query) ||
-        startup.batch.toLowerCase().includes(query)
-    );
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/startups/search?q=${encodeURIComponent(searchQuery)}&limit=100`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch startups');
+        }
+        const data = await response.json();
+        setStartups(data.startups || []);
+      } catch (error) {
+        console.error("Error fetching startups:", error);
+        setStartups([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const timeoutId = setTimeout(fetchStartups, 300); // Debounce search
+    return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
   // Prioritize inactive startups
   const sortedStartups = useMemo(() => {
-    return [...filteredStartups].sort((a, b) => {
+    return [...startups].sort((a, b) => {
       if (a.status === "Inactive" && b.status !== "Inactive") return -1;
       if (a.status !== "Inactive" && b.status === "Inactive") return 1;
       return 0;
     });
-  }, [filteredStartups]);
+  }, [startups]);
 
   return (
     <div className="min-h-screen" style={{ background: "var(--paper-075)" }}>
@@ -147,10 +164,26 @@ export default function Home() {
 
               {/* Results Content with Padding */}
               <div style={{ paddingTop: "64px", minHeight: "336px" }}>
-                {sortedStartups.length > 0 ? (
+                {isLoading ? (
+                  <div className="flex items-center justify-center" style={{ minHeight: "272px", marginTop: "-32px" }}>
+                    <div className="text-center">
+                      <p
+                        style={{
+                          fontFamily: "var(--font-pt-mono), var(--font-title)",
+                          color: "var(--ink-400)",
+                          fontSize: "24px",
+                          letterSpacing: "0.05em",
+                          fontWeight: 400,
+                        }}
+                      >
+                        Searching...
+                      </p>
+                    </div>
+                  </div>
+                ) : sortedStartups.length > 0 ? (
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {sortedStartups.map((startup) => (
-                      <StartupCard key={startup.slug} startup={startup} />
+                      <StartupCard key={startup.slug || startup.id || startup.name} startup={startup} />
                     ))}
                   </div>
                 ) : (
@@ -224,19 +257,20 @@ function CornerAccents() {
 }
 
 interface StartupCardProps {
-  startup: Startup;
+  startup: YCStartup;
 }
 
 function StartupCard({ startup }: StartupCardProps) {
   const isInactive = startup.status === "Inactive";
-  const href = `/companies/${slugifyName(startup.name)}`;
+  const slug = startup.slug || slugifyName(startup.name || "");
+  const href = `/companies/${slug}`;
 
   return (
     <Link
       href={href}
       className="group relative flex h-full flex-col overflow-hidden transition-transform hover:translate-y-[-2px]"
       style={{
-        background: "#fff",
+        background: "var(--paper-050)",
         padding: "20px",
       }}
     >
@@ -252,13 +286,15 @@ function StartupCard({ startup }: StartupCardProps) {
             background: "var(--paper-050)",
           }}
         >
-          <Image
-            src={startup.small_logo_thumb_url}
-            alt={`${startup.name} logo`}
-            fill
-            className="object-cover"
-            unoptimized
-          />
+          {startup.small_logo_thumb_url && (
+            <Image
+              src={startup.small_logo_thumb_url}
+              alt={`${startup.name} logo`}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          )}
         </div>
 
         {/* RIP Badge for Inactive Startups */}
@@ -267,7 +303,7 @@ function StartupCard({ startup }: StartupCardProps) {
             className="shrink-0"
             style={{
               background: "var(--ink-900)",
-              color: "var(--accent-red-500)",
+              color: "#fff",
               fontFamily: "var(--font-pt-mono), var(--font-title)",
               fontSize: "12px",
               fontWeight: 600,
@@ -308,54 +344,57 @@ function StartupCard({ startup }: StartupCardProps) {
         {/* Metadata - pushed to bottom */}
         <div className="mt-auto space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <span
-              className="inline-flex items-center"
-              style={{
-                background: "var(--paper-050)",
-                color: "var(--ink-700)",
-                fontFamily: "var(--font-pt-mono), var(--font-title)",
-                fontSize: "12px",
-                padding: "4px 10px",
-              }}
-            >
-              {startup.batch}
-            </span>
+            {startup.batch && (
+              <span
+                className="inline-flex items-center"
+                style={{
+                  background: "#fff",
+                  color: "var(--ink-700)",
+                  fontFamily: "var(--font-pt-mono), var(--font-title)",
+                  fontSize: "12px",
+                  padding: "4px 10px",
+                }}
+              >
+                {startup.batch}
+              </span>
+            )}
 
-            <span
-              className="inline-flex items-center"
-              style={{
-                background:
-                  startup.status === "Acquired"
-                    ? "var(--ink-700)"
-                    : "var(--paper-050)",
-                color:
-                  startup.status === "Active"
-                    ? "var(--accent-green-500)"
-                    : startup.status === "Acquired"
-                    ? "white"
-                    : startup.status === "Inactive"
-                    ? "var(--accent-red-500)"
-                    : "var(--ink-700)",
-                fontSize: "11px",
-                fontWeight: 600,
-                padding: "4px 10px",
-                fontFamily: "var(--font-pt-mono), var(--font-title)",
-              }}
-            >
-              {startup.status}
-            </span>
+            {startup.status && (
+              <span
+                className="inline-flex items-center"
+                style={{
+                  background: "#fff",
+                  color:
+                    startup.status === "Active"
+                      ? "var(--accent-green-500)"
+                      : startup.status === "Acquired"
+                      ? "#F59E0B"
+                      : startup.status === "Inactive"
+                      ? "var(--accent-red-500)"
+                      : "var(--ink-700)",
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  padding: "4px 10px",
+                  fontFamily: "var(--font-pt-mono), var(--font-title)",
+                }}
+              >
+                {startup.status}
+              </span>
+            )}
           </div>
 
-          <span
-            className="block"
-            style={{
-              color: "var(--ink-400)",
-              fontFamily: "var(--font-inter), var(--font-body)",
-              fontSize: "12px",
-            }}
-          >
-            Launched {new Date(startup.launched_at * 1000).getFullYear()}
-          </span>
+          {startup.launched_at && (
+            <span
+              className="block"
+              style={{
+                color: "var(--ink-400)",
+                fontFamily: "var(--font-inter), var(--font-body)",
+                fontSize: "12px",
+              }}
+            >
+              Launched {new Date(startup.launched_at * 1000).getFullYear()}
+            </span>
+          )}
         </div>
       </div>
     </Link>
