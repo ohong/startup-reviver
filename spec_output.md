@@ -1,78 +1,98 @@
 ```markdown
-# AirGo MVP Technical Specification
+# FlexiBudget MVP Technical Specification
 
 ## Executive Summary
-AirGo is a web-based platform aimed at simplifying air travel logistics for users by providing streamlined itineraries, virtual packing lists, and airline recommendation systems. By addressing issues of flight coordination and travel preparation, we can leverage modern tech to provide a user-friendly experience without unnecessary complexity.
+We are building FlexiBudget, a personal finance management tool that helps users track and manage their spending against a customizable budget. This MVP aims to empower users to gain control over their finances and make informed decisions about their spending habits.
 
 ## Core Value Proposition
-AirGo helps travelers easily organize their trip itineraries and packing needs, reducing travel-related stress.
+FlexiBudget solves the problem of ineffective budget tracking, enabling users to create, modify, and visualize their spending against a personal budget in real-time.
 
 ## MVP Features
-### Feature 1: Trip Itinerary Organizer
-**User Story**: As a traveler, I want to create and view my trip itineraries so that I can manage my travel plans in one place.  
-**Acceptance Criteria**:
-- [ ] Users can input travel details (flight information, hotel bookings).
-- [ ] Itineraries save locally in JSON format and reload on page refresh.
-- [ ] Users can view past itineraries.
+### Feature 1: Budget Creation
+**User Story**: As a user, I want to create a customizable budget so that I can allocate my funds for different spending categories.
 
-### Feature 2: Virtual Packing List Generator
-**User Story**: As a traveler, I want to generate a packing list based on my itinerary so that I don’t forget essential items.  
 **Acceptance Criteria**:
-- [ ] Users can generate a packing list that corresponds to their trip details.
-- [ ] Packing lists save locally in JSON format and can be edited by users.
-- [ ] Users receive suggestions based on trip length and destination climate.
+- [ ] A form allows users to define budget categories with names and target amounts.
+- [ ] Each budget category is saved in local storage as a JSON object.
+- [ ] Users can update and delete categories.
 
-### Feature 3: Recommended Airlines
-**User Story**: As a traveler, I want to receive airline recommendations based on my travel destination so that I can choose the best option for my needs.  
+### Feature 2: Expense Tracking
+**User Story**: As a user, I want to track my expenses in real time so that I can see how they measure up against my budget.
+
 **Acceptance Criteria**:
-- [ ] Users can input their destination and receive a list of recommended airlines.
-- [ ] Recommendations are displayed as a simple list with pros and cons stored in local JSON.
-- [ ] Users can save their preferred airlines locally.
+- [ ] A form allows users to input expenses with category selection and amount.
+- [ ] Expenses are saved in local storage and linked to their respective categories.
+- [ ] A visual representation (bar chart) displays expenses against the budget.
+
+### Feature 3: Real-Time Visualization
+**User Story**: As a user, I want to visualize my spending versus my budget so that I can quickly assess my financial situation.
+
+**Acceptance Criteria**:
+- [ ] A bar chart displays each budget category's target and actual spending.
+- [ ] The chart updates in real-time as expenses are added or modified.
+- [ ] Budget categories color-code their status (under budget, on budget, over budget).
+
+### Feature 4: Simple Authentication
+**User Story**: As a user, I want to be able to log in with a username and password so that I can access my data securely.
+
+**Acceptance Criteria**:
+- [ ] A login form that takes username and password for authentication.
+- [ ] Valid credentials are checked against a local JSON file (users.json).
+- [ ] User session is stored in localStorage for future access.
 
 ## Technical Architecture
-**Stack**: TypeScript, React, Vite, Tailwind CSS  
+**Stack**: TypeScript, React 18+, Vite, Tailwind CSS  
 **Data Storage**: Local JSON files in /public/data/  
 **File Structure**:
 ```
 /src
   /components
-    TripOrganizer.tsx
-    PackingList.tsx
-    AirlineRecommendations.tsx
+    BudgetForm.tsx
+    ExpenseForm.tsx
+    ExpenseChart.tsx
+    Login.tsx
   /hooks
-    useLocalStorage.ts
+    useBudget.ts
+    useExpenses.ts
   /utils
-    jsonUtil.ts
+    storage.ts
+    api.ts
   /types
-    itineraryTypes.ts
+    index.ts
 App.tsx
 ```
 
 ## Functional Requirements
-### Feature 1: Trip Itinerary Organizer
-**User Story**: As a traveler, I want to create and view my trip itineraries so that I can manage my travel plans in one place.  
-**Acceptance Criteria**:
-- [ ] Users can input travel details (flight information, hotel bookings) through a form.
-- [ ] Data is stored in localStorage under a `tripItineraries` key and can be retrieved after page reload.
-- [ ] Users can view their itineraries on a dedicated page.
+### Feature 1: Budget Creation
+- **User Story**: As a user, I want to create a customizable budget so that I can allocate my funds for different spending categories.
+- **Acceptance Criteria**: 
+  - The budget creation form captures category names and amounts.
+  - Categories persist in local storage when created.
+  - Users can update category names and amounts.
+  - Users can delete categories.
 
-### Feature 2: Virtual Packing List Generator
-**User Story**: As a traveler, I want to generate a packing list based on my itinerary so that I don’t forget essential items.  
-**Acceptance Criteria**:
-- [ ] Users can view and customize a generated packing list when they click on their itinerary.
-- [ ] Packing list data is stored in localStorage under a `packingLists` key.
-- [ ] Default suggested items appear based on itinerary location added in terms of weather and trip length.
+### Feature 2: Expense Tracking
+- **User Story**: As a user, I want to track my expenses in real-time so that I can see how they measure up against my budget.
+- **Acceptance Criteria**:
+  - Expense input form captures the category and amount.
+  - Expenses are saved and categorized in local storage.
+  - New expenses trigger a refresh of the spending visualization.
 
-### Feature 3: Recommended Airlines
-**User Story**: As a traveler, I want to receive airline recommendations based on my travel destination so that I can choose the best option for my needs.  
-**Acceptance Criteria**:
-- [ ] Users input a destination through a search box and receive airline recommendations rendered in a list format.
-- [ ] Recommendations include airline name, pros, and cons as specified in local JSON file.
-- [ ] Users can save their preferred airlines in localStorage under a `preferredAirlines` key.
+### Feature 3: Real-Time Visualization
+- **User Story**: As a user, I want to visualize my spending versus my budget so that I can quickly assess my financial situation.
+- **Acceptance Criteria**:
+  - The visual representation accurately reflects both budget limits and actual spending.
+  - Chart updates as users input new expenses or modify existing ones.
+
+### Feature 4: Simple Authentication
+- **User Story**: As a user, I want to be able to log in with a username and password so that I can access my data securely.
+- **Acceptance Criteria**:
+  - Users can enter their credentials into a login form.
+  - Authentication checks against stored user data.
+  - User sessions are maintained in local storage for subsequent visits.
 
 ## Implementation Notes
-- Utilize localStorage for all data persistence to align with the client-side only architecture.
-- Implement a simple form validation to ensure users provide complete trip details.
-- Ensure the UI adheres to accessibility guidelines and provides a clear hierarchy in content organization.
-- Maintain a focus on performance, ensuring all interactions are smooth and the application responds within 200ms.
+- All data handling must adhere to local storage protocols to comply with the "client-side only" directive.
+- JSX elements should utilize Tailwind CSS for styling to ensure a clean and functional UI.
+- Error handling for improper login attempts or input validation must be minimal but explicit, notifying users of incorrect entries without extensive logging or backend interaction.
 ```
