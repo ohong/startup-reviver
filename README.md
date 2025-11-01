@@ -43,3 +43,6 @@ Both API routes perform basic validation and bubble up V0/Vercel errors so they 
 - `npm run lint` – Run ESLint
 
 See `flow.md` for a command-line walkthrough of the same prompt → deploy workflow.
+
+## Email Helper
+- Use `sendMail` from `lib/email.ts` to send transactional emails through Resend. Set `RESEND_FROM_EMAIL` (use `noreply@updates.tie.uz`) and see `docs/resend-email.md` for configuration and usage details.

@@ -1,0 +1,8 @@
+{
+  "sip_number": "+14156830572",
+  "sip_trunk_id": "ST_3MpKcmKgHNjx",
+  "sip_call_to": "+16672925962",
+  "room_name": "open-room",
+  "participant_identity": "sip-test",
+  "participant_name": "Test call participant"
+}
