@@ -1,16 +1,24 @@
-import os
-
-from openai import OpenAI
-from perplexity import Perplexity
-
-# Tools
-perplexity_client = Perplexity(api_key=os.getenv("PERPLEXITY_API_KEY"))
-openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+from clients import hyperspell_client, openai_client, perplexity_client
 
 
 def get_company_details(company_name: str):
-    """Get the details of the company from the database."""
-    return {}
+    """Get company details from the Hyperspell index"""
+    try:
+        search_result = hyperspell_client.memories.search(
+            query=company_name,
+            collection="yc_companies",
+            limit=1,
+        )
+
+        full_details = hyperspell_client.memories.get(
+            resource_id=search_result.documents[0].resource_id,
+            source=search_result.documents[0].source,
+        )
+
+        return full_details.model_dump_json()
+
+    except Exception as e:
+        return f"ERROR: {e}"
 
 
 def web_search(query: str, max_results: int = 5):

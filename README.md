@@ -12,7 +12,7 @@ What if an AI agent swarm could do it automatically?
 
 **Startup of the Dead** takes a failed YC company name and outputs:
 - Deep research report on what went wrong
-- Strategic analysis of how AI changes the game in 2025  
+- Strategic analysis of how AI changes the game in 2025
 - Complete technical specification
 - Working MVP codebase, ready to run
 
@@ -45,7 +45,7 @@ User Input → Research → Strategy → Architecture → Code Generation → Wo
 
 **4. Code Generation Team** (3 parallel agents)
 - **Frontend Agent:** React components, UI, API integration
-- **Backend Agent:** Express server, SQLite database, API endpoints  
+- **Backend Agent:** Express server, SQLite database, API endpoints
 - **AI Agent:** Claude API integration, prompt engineering, intelligent features
 
 All agents communicate via message queue, coordinating like a real engineering team.
@@ -58,7 +58,7 @@ All agents communicate via message queue, coordinating like a real engineering t
 - Mastra (agent framework)
 - Message queue for agent coordination
 
-**Research & Analysis**  
+**Research & Analysis**
 - Perplexity API (web research)
 - Claude Sonnet 4.5 (all agents)
 - YC Company API (startup data)
