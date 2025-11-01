@@ -110,7 +110,7 @@ export default function Home() {
             >
               {/* Corner Accents */}
               <CornerAccents />
-              
+
               <Search
                 className="h-5 w-5 shrink-0"
                 style={{ color: "var(--ink-400)" }}
@@ -134,9 +134,9 @@ export default function Home() {
 
       {/* Search Results - Pre-allocated Space */}
       <div className="mx-auto w-full max-w-6xl px-6 pb-24 lg:px-8">
-        <div 
+        <div
           className="relative w-full"
-          style={{ 
+          style={{
             minHeight: "400px",
             background: "#fff",
             padding: "32px",
@@ -144,7 +144,7 @@ export default function Home() {
         >
           {/* Corner Accents */}
           <CornerAccents />
-          
+
           {searchQuery.trim() ? (
             <>
               {/* Results Header - Absolute Position */}

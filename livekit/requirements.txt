@@ -1,0 +1,15 @@
+livekit-agents>=1.2.2
+livekit>=0.18.0
+python-dotenv>=1.0.1
+livekit-plugins-openai>=1.2.2
+livekit-plugins-google>=1.2.2
+livekit-plugins-deepgram>=1.2.2
+livekit-plugins-silero>=1.2.2
+livekit-plugins-elevenlabs>=1.2.2
+livekit-plugins-turn-detector>=1.2.2
+livekit-plugins-assemblyai>=1.2.2
+livekit-plugins-noise-cancellation>=0.2.4
+
+# Additional dependencies detected from imports
+requests>=2.31.0
+livekit-plugins-groq>=1.2.2
