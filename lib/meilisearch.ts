@@ -23,26 +23,66 @@ export interface YCStartup {
 
 /**
  * Search for startups in the Meilisearch index
+ * Multi-pass strategy prioritizing: Inactive + Logo > Inactive + No Logo > Active + Logo > Active + No Logo
  */
 export async function searchStartups(query: string, limit = 100): Promise<YCStartup[]> {
   try {
     const index = client.index(INDEX_NAME);
-    const searchResults = await index.search<YCStartup>(query, {
-      limit,
-      attributesToRetrieve: [
-        "id",
-        "slug",
-        "name",
-        "small_logo_thumb_url",
-        "one_liner",
-        "batch",
-        "launched_at",
-        "website",
-        "status",
-      ],
-    });
+    const attributesToRetrieve = [
+      "id",
+      "slug",
+      "name",
+      "small_logo_thumb_url",
+      "one_liner",
+      "batch",
+      "launched_at",
+      "website",
+      "status",
+    ];
     
-    return searchResults.hits || [];
+    const results: YCStartup[] = [];
+    
+    // Pass 1: Inactive + With Logo
+    if (results.length < limit) {
+      const pass1 = await index.search<YCStartup>(query, {
+        limit: limit - results.length,
+        attributesToRetrieve,
+        filter: 'status = "Inactive" AND small_logo_thumb_url != "/company/thumb/missing.png"',
+      });
+      results.push(...(pass1.hits || []));
+    }
+    
+    // Pass 2: Inactive + Without Logo
+    if (results.length < limit) {
+      const pass2 = await index.search<YCStartup>(query, {
+        limit: limit - results.length,
+        attributesToRetrieve,
+        filter: 'status = "Inactive" AND small_logo_thumb_url = "/company/thumb/missing.png"',
+      });
+      results.push(...(pass2.hits || []));
+    }
+    
+    // Pass 3: Non-Inactive + With Logo
+    if (results.length < limit) {
+      const pass3 = await index.search<YCStartup>(query, {
+        limit: limit - results.length,
+        attributesToRetrieve,
+        filter: 'status != "Inactive" AND small_logo_thumb_url != "/company/thumb/missing.png"',
+      });
+      results.push(...(pass3.hits || []));
+    }
+    
+    // Pass 4: Non-Inactive + Without Logo
+    if (results.length < limit) {
+      const pass4 = await index.search<YCStartup>(query, {
+        limit: limit - results.length,
+        attributesToRetrieve,
+        filter: 'status != "Inactive" AND small_logo_thumb_url = "/company/thumb/missing.png"',
+      });
+      results.push(...(pass4.hits || []));
+    }
+    
+    return results;
   } catch (error) {
     console.error("Error searching startups:", error);
     return [];

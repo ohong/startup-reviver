@@ -11,23 +11,22 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [startups, setStartups] = useState<YCStartup[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasInitialLoad, setHasInitialLoad] = useState(false);
 
   // Fetch startups from API when search query changes
   useEffect(() => {
     const fetchStartups = async () => {
-      if (!searchQuery.trim()) {
-        setStartups([]);
-        return;
-      }
-
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/startups/search?q=${encodeURIComponent(searchQuery)}&limit=100`);
+        // Use "*" for wildcard search on empty query
+        const query = searchQuery.trim() || "*";
+        const response = await fetch(`/api/startups/search?q=${encodeURIComponent(query)}&limit=100`);
         if (!response.ok) {
           throw new Error('Failed to fetch startups');
         }
         const data = await response.json();
         setStartups(data.startups || []);
+        setHasInitialLoad(true);
       } catch (error) {
         console.error("Error fetching startups:", error);
         setStartups([]);
@@ -51,9 +50,20 @@ export default function Home() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--paper-075)" }}>
+      {/* Cobweb in top left corner */}
+      <div className="absolute left-0 z-50 pointer-events-none" style={{ top: "-20px", width: "200px", height: "200px", transform: "scaleX(-1)" }}>
+        <Image
+          src="/cobweb.svg"
+          alt=""
+          fill
+          className="object-contain"
+          priority
+        />
+      </div>
+      
       {/* Hero Section */}
       <div className="relative overflow-hidden" style={{ background: "var(--paper-075)" }}>
-        <div className="relative z-10 mx-auto max-w-7xl px-6 py-8 sm:py-12 lg:px-8">
+        <div className="relative z-10 mx-auto max-w-7xl py-8 sm:py-12" style={{ paddingLeft: "120px", paddingRight: "24px" }}>
           {/* Hero Grid - Title Left, Image Right */}
           <div className="mx-auto mb-4 grid max-w-6xl grid-cols-1 items-center gap-16 lg:grid-cols-2">
             {/* Left Column - Text */}
@@ -144,8 +154,8 @@ export default function Home() {
         >
           {/* Corner Accents */}
           <CornerAccents />
-
-          {searchQuery.trim() ? (
+          
+          {hasInitialLoad ? (
             <>
               {/* Results Header - Absolute Position */}
               <div style={{ position: "absolute", top: "32px", left: "32px" }}>
@@ -198,7 +208,7 @@ export default function Home() {
                           fontWeight: 400,
                         }}
                       >
-                        No startups found matching &ldquo;{searchQuery}&rdquo;
+                        No startups found{searchQuery.trim() ? ` matching "${searchQuery}"` : ""}
                       </p>
                     </div>
                   </div>
@@ -217,7 +227,7 @@ export default function Home() {
                     fontWeight: 400,
                   }}
                 >
-                  The graveyard is empty
+                  Loading...
                 </p>
               </div>
             </div>

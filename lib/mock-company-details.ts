@@ -4,8 +4,8 @@ import { mockStartups, type Startup } from "./mock-data";
 import { slugifyName } from "./utils";
 import { type YCStartup } from "./meilisearch";
 
-const REPORTS_DIR = path.join(process.cwd(), "examples");
-const REPORT_SUFFIX = "-report.md";
+const REPORTS_DIR = path.join(process.cwd(), "reports");
+const REPORT_SUFFIX = ".md";
 
 const reportCache = new Map<string, CompanyDetails>();
 
@@ -439,12 +439,139 @@ function convertYCStartupToStartup(ycStartup: YCStartup): Startup {
 export async function getCompanyDetails(slug: string): Promise<CompanyDetails | undefined> {
   const normalized = slugifyName(slug);
   
-  // First, try to load from report markdown
-  const reportDetails = loadReportDetails(normalized);
-  if (reportDetails) {
+  // Try to fetch startup data from Meilisearch first (server-side)
+  let ycStartup: YCStartup | null = null;
+  if (typeof window === 'undefined') {
+    // Server-side: Use direct Meilisearch import
+    try {
+      const { getStartupBySlug } = await import('./meilisearch');
+      ycStartup = await getStartupBySlug(normalized);
+    } catch (error) {
+      console.error("Error fetching startup from Meilisearch:", error);
+    }
+  }
+  
+  // Convert to Startup format if we got data from Meilisearch
+  const startupFromDb = ycStartup ? convertYCStartupToStartup(ycStartup) : undefined;
+  
+  // Try to load from report markdown
+  const reportPath = findReportPath(normalized);
+  if (reportPath) {
+    const raw = fs.readFileSync(reportPath, "utf8");
+    const sanitized = raw.replace(/\r\n/g, "\n").replace(/\uFFFC/g, "");
+    const blocks = sanitized
+      .split(/\n?\s*⸻\s*\n?/g)
+      .map((block) => block.trim())
+      .filter(Boolean);
+
+    const metaBlock = blocks.shift() ?? "";
+    const metadata = parseMetadataBlock(metaBlock);
+
+    const name = metadata.get("startup") ?? "";
+    const slugFromFile = slugifyName(path.basename(reportPath, path.extname(reportPath)).replace(/-report$/i, ""));
+    const reportSlug = slugifyName(name) || slugFromFile;
+
+    // Use startup from DB if available, otherwise fall back to mock data
+    const baseStartup = startupFromDb ?? mockStartups.find(
+      (startup) => slugifyName(startup.slug) === reportSlug || slugifyName(startup.name) === reportSlug
+    );
+
+    const batch = metadata.get("batch") || baseStartup?.batch || "Unknown";
+    const oneLiner = metadata.get("one-liner") || baseStartup?.one_liner || "";
+    const statusLine = metadata.get("status (evidence-based)") || metadata.get("status");
+    const status = deriveStatus(statusLine, baseStartup?.status ?? "Inactive");
+
+    const startup: Startup = {
+      slug: baseStartup?.slug ?? reportSlug,
+      name: name || baseStartup?.name || reportSlug,
+      small_logo_thumb_url:
+        baseStartup?.small_logo_thumb_url ??
+        `https://www.ycombinator.com/companies/${reportSlug}/card_image`,
+      one_liner: oneLiner,
+      batch,
+      launched_at: deriveLaunchTimestamp(batch, baseStartup?.launched_at),
+      website:
+        metadata.get("website") ||
+        baseStartup?.website ||
+        `https://www.ycombinator.com/companies/${reportSlug}`,
+      status,
+    };
+
+    const sections = blocks
+      .map((block) => parseReportSection(block))
+      .filter((section): section is CompanySection => section !== null);
+
+    const summaryParagraph = sections
+      .find((section) => section.title.toLowerCase().startsWith("why"))
+      ?.body.find((paragraph) => /^summary:/i.test(paragraph));
+
+    const overview = summaryParagraph
+      ? summaryParagraph.replace(/^summary:\s*/i, "").trim()
+      : oneLiner || sections[0]?.body[0] || "Research report in progress.";
+
+    const facts: CompanyFact[] = [];
+    if (batch) {
+      facts.push({ label: "Batch", value: batch });
+    }
+    const founder = metadata.get("founder");
+    if (founder) {
+      facts.push({ label: "Founder", value: founder });
+    }
+    if (statusLine) {
+      facts.push({ label: "Status", value: statusLine });
+    }
+
+    const rawTags = metadata.get("tags");
+    const tagList: string[] = [];
+    if (batch) {
+      tagList.push(batch);
+    }
+    const category = metadata.get("category");
+    if (category) {
+      tagList.push(category);
+    }
+    if (rawTags) {
+      rawTags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+        .forEach((tag) => tagList.push(tag));
+    }
+
+    const tags = Array.from(new Set(tagList));
+
+    const updatedAt = (() => {
+      try {
+        const stats = fs.statSync(reportPath);
+        return new Intl.DateTimeFormat("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }).format(stats.mtime);
+      } catch {
+        return "Oct 31, 2025";
+      }
+    })();
+
+    const readingTime = estimateReadingTime(sanitized);
+
+    const reportDetails: CompanyDetails = {
+      startup,
+      tags,
+      overview,
+      updatedAt,
+      readingTime,
+      sections: sections.length > 0 ? sections : defaultSectionOrder,
+      facts: facts.length > 0 ? facts : defaultFacts,
+      careersUrl: startup.website,
+      authors: defaultAuthors.map((author) => ({ ...author })),
+    };
+    
+    // Cache the result
     detailIndex[normalized] = reportDetails;
     detailIndex[reportDetails.startup.slug] = reportDetails;
     detailIndex[slugifyName(reportDetails.startup.slug)] = reportDetails;
+    
     return reportDetails;
   }
 
@@ -453,26 +580,32 @@ export async function getCompanyDetails(slug: string): Promise<CompanyDetails | 
     return detailIndex[normalized] ?? detailIndex[slug];
   }
 
-  // Try to fetch from API
-  try {
-    const response = await fetch(`/api/startups/${encodeURIComponent(slug)}`);
-    if (response.ok) {
-      const data = await response.json();
-      if (data.startup) {
-        const startup = convertYCStartupToStartup(data.startup);
-        const details = buildDetails(startup);
-        
-        // Cache the result
-        detailIndex[normalized] = details;
-        detailIndex[startup.slug] = details;
-        detailIndex[slugifyName(startup.name)] = details;
-        
-        return details;
+  // Try to fetch from API (only on client side)
+  // On server side, we skip this since relative URLs don't work with fetch
+  if (typeof window !== 'undefined') {
+    try {
+      const response = await fetch(`/api/startups/${encodeURIComponent(slug)}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.startup) {
+          const startup = convertYCStartupToStartup(data.startup);
+          const details = buildDetails(startup);
+          
+          // Cache the result
+          detailIndex[normalized] = details;
+          detailIndex[startup.slug] = details;
+          detailIndex[slugifyName(startup.name)] = details;
+          
+          return details;
+        }
       }
+    } catch (error) {
+      console.error("Error fetching startup from API:", error);
     }
-  } catch (error) {
-    console.error("Error fetching startup from API:", error);
   }
+  
+  // If we have startup from DB but no report, return undefined to show EmptyCompanyPage
+  // (Don't build default details with placeholder text)
 
   return undefined;
 }

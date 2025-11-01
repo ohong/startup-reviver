@@ -1,4 +1,3 @@
-# Fetchr: The AI Personal Shopping Assistant That Couldn't Scale
 
 ## Why The Business Failed
 

@@ -3,16 +3,201 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MoreHorizontal, Search, Share2 } from "lucide-react";
 import type { CompanyDetails } from "@/lib/mock-company-details";
+import { parseMarkdownToCompanyDetails } from "@/lib/markdown-parser";
+
+// Add CSS keyframes for spinner animation
+const spinnerStyles = `
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+const PlusIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8 1V15M1 8H15" stroke="var(--ink-400)" strokeWidth="2" strokeLinecap="square" />
+  </svg>
+);
+
+// Loading spinner component
+function LoadingSpinner() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{
+        animation: "spin 1s linear infinite",
+        transformOrigin: "center",
+        display: "inline-block",
+      }}
+    >
+      <circle
+        cx="8"
+        cy="8"
+        r="6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeOpacity="0.25"
+      />
+      <path
+        d="M8 2a6 6 0 0 1 6 6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="square"
+      />
+    </svg>
+  );
+}
+
+// Corner accent component for the brutalist aesthetic
+function CornerAccents() {
+  const cornerStyle = {
+    position: "absolute" as const,
+    width: "16px",
+    height: "16px",
+  };
+
+  return (
+    <>
+      {/* Top-left */}
+      <div style={{ ...cornerStyle, top: "-8px", left: "-8px" }}><PlusIcon /></div>
+      {/* Top-right */}
+      <div style={{ ...cornerStyle, top: "-8px", right: "-8px" }}><PlusIcon /></div>
+      {/* Bottom-left */}
+      <div style={{ ...cornerStyle, bottom: "-8px", left: "-8px" }}><PlusIcon /></div>
+      {/* Bottom-right */}
+      <div style={{ ...cornerStyle, bottom: "-8px", right: "-8px" }}><PlusIcon /></div>
+    </>
+  );
+}
 
 interface CompanyPageContentProps {
   details: CompanyDetails;
+  slug: string;
 }
 
 const stickyOffset = 96;
 
-export function CompanyPageContent({ details }: CompanyPageContentProps) {
+export function CompanyPageContent({ details: initialDetails, slug }: CompanyPageContentProps) {
+  const [details, setDetails] = useState<CompanyDetails>(initialDetails);
+  const [isLoading, setIsLoading] = useState(true);
+  const [deploymentUrl, setDeploymentUrl] = useState<string | null>(null);
+  const [hasDeployment, setHasDeployment] = useState(false);
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [isDeploymentSubmitted, setIsDeploymentSubmitted] = useState(false);
+
+  // Fetch markdown report from API
+  useEffect(() => {
+    async function fetchReport() {
+      try {
+        // Fetch both the report markdown and startup data
+        const [reportResponse, startupResponse] = await Promise.all([
+          fetch(`/api/${slug}/report`),
+          fetch(`/api/startups/${slug}`)
+        ]);
+        
+        if (reportResponse.ok) {
+          const reportData = await reportResponse.json();
+          if (reportData.markdown) {
+            // Use startup data from API if available
+            let startupToUse = initialDetails.startup;
+            if (startupResponse.ok) {
+              const startupData = await startupResponse.json();
+              if (startupData.startup && startupData.startup.small_logo_thumb_url) {
+                // Merge startup data, prioritizing API data for logo
+                startupToUse = {
+                  ...initialDetails.startup,
+                  ...startupData.startup,
+                  slug: startupData.startup.slug || initialDetails.startup.slug,
+                  name: startupData.startup.name || initialDetails.startup.name,
+                };
+              }
+            }
+            
+            // Parse markdown and update details
+            const parsedDetails = parseMarkdownToCompanyDetails(
+              reportData.markdown,
+              slug,
+              startupToUse
+            );
+            setDetails(parsedDetails);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching report:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchReport();
+  }, [slug, initialDetails.startup]);
+
+  // Fetch deployment information
+  useEffect(() => {
+    async function fetchDeployment() {
+      try {
+        const response = await fetch(`/api/${slug}/deployment`);
+        if (response.ok) {
+          const data = await response.json();
+          setDeploymentUrl(data.url);
+          setHasDeployment(true);
+        } else {
+          setHasDeployment(false);
+        }
+      } catch (error) {
+        console.error("Error fetching deployment:", error);
+        setHasDeployment(false);
+      }
+    }
+
+    fetchDeployment();
+  }, [slug]);
+
+  const handleDeploy = async () => {
+    setIsDeploying(true);
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_REPORT_BACKEND_API;
+      if (!backendUrl) {
+        console.error("NEXT_PUBLIC_REPORT_BACKEND_API is not defined");
+        return;
+      }
+
+      // Fake the deployment with a delay for better UX
+      setTimeout(() => {
+        setIsDeploymentSubmitted(true);
+      }, 2000);
+
+      /* Real API call - commented out for now
+      const response = await fetch(`${backendUrl}/create_coding_specs`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ slug }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to create coding specs:", response.statusText);
+      } else {
+        console.log("Deployment initiated successfully");
+      }
+      */
+    } catch (error) {
+      console.error("Error deploying:", error);
+    } finally {
+      setIsDeploying(false);
+    }
+  };
+
   const sectionIds = useMemo(
     () => details.sections.map((section) => section.id),
     [details.sections]
@@ -58,6 +243,14 @@ export function CompanyPageContent({ details }: CompanyPageContentProps) {
       observer.disconnect();
     };
   }, [sectionIds]);
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style");
+      style.textContent = spinnerStyles;
+      document.head.appendChild(style);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen" style={{ background: "var(--paper-075)" }}>
@@ -115,50 +308,7 @@ export function CompanyPageContent({ details }: CompanyPageContentProps) {
             ))}
           </nav>
         </div>
-        <div className="flex items-center gap-3" style={{ color: "var(--ink-400)" }}>
-          <button
-            type="button"
-            aria-label="Search"
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "inherit",
-              display: "grid",
-              placeItems: "center",
-              padding: "6px",
-            }}
-          >
-            <Search className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            aria-label="Share"
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "inherit",
-              display: "grid",
-              placeItems: "center",
-              padding: "6px",
-            }}
-          >
-            <Share2 className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            aria-label="More actions"
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "inherit",
-              display: "grid",
-              placeItems: "center",
-              padding: "6px",
-            }}
-          >
-            <MoreHorizontal className="h-4 w-4" />
-          </button>
-        </div>
+        {/* Icon buttons removed */}
       </header>
 
       <div
@@ -174,22 +324,32 @@ export function CompanyPageContent({ details }: CompanyPageContentProps) {
           style={{ position: "sticky", top: `${stickyOffset}px`, alignSelf: "flex-start" }}
         >
           <div
-            className="relative overflow-hidden"
+            className="relative"
             style={{
               width: "140px",
               height: "140px",
-              borderRadius: "12px",
-              background: "var(--paper-050)",
+              background: "var(--paper-000)",
               marginBottom: "24px",
             }}
           >
-            <Image
-              src={details.startup.small_logo_thumb_url}
-              alt={`${details.startup.name} logo`}
-              fill
-              className="object-cover"
-              unoptimized
-            />
+            <CornerAccents />
+            <div
+              className="relative overflow-hidden"
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            >
+              {details.startup.small_logo_thumb_url && (
+                <Image
+                  src={details.startup.small_logo_thumb_url}
+                  alt={`${details.startup.name} logo`}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              )}
+            </div>
           </div>
           <ul
             className="grid gap-2"
@@ -227,7 +387,7 @@ export function CompanyPageContent({ details }: CompanyPageContentProps) {
         <main>
           <nav
             aria-label="Memo sections"
-            className="mb-6 grid gap-3 border-b border-[color:var(--line-200)] pb-4 lg:hidden"
+            className="mb-6 grid gap-3 border-b border-line-200 pb-4 lg:hidden"
             style={{
               fontFamily: "var(--font-pt-mono), var(--font-title)",
               fontSize: "13px",
@@ -389,41 +549,187 @@ export function CompanyPageContent({ details }: CompanyPageContentProps) {
           style={{ position: "sticky", top: `${stickyOffset}px`, alignSelf: "flex-start" }}
         >
           <section
+            className="relative"
             style={{
-              border: "1px solid var(--line-200)",
-              borderRadius: "12px",
               background: "var(--paper-000)",
               padding: "24px",
               marginBottom: "16px",
             }}
           >
-            <button
-              type="button"
-              style={{
-                width: "100%",
-                background: "var(--ink-900)",
-                color: "var(--paper-000)",
-                border: "none",
-                borderRadius: "10px",
-                padding: "14px 16px",
-                fontFamily: "var(--font-pt-mono), var(--font-title)",
-                fontSize: "14px",
-                letterSpacing: "-0.01em",
-                cursor: "pointer",
-              }}
-            >
-              Revive this startup
-            </button>
+            <CornerAccents />
+            {isDeploymentSubmitted ? (
+              <div style={{ textAlign: "center" }}>
+                <div
+                  style={{
+                    fontSize: "32px",
+                    marginBottom: "12px",
+                    filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
+                  }}
+                >
+                  ✨
+                </div>
+                <h3
+                  style={{
+                    fontFamily: "var(--font-pt-mono), var(--font-title)",
+                    fontSize: "16px",
+                    color: "var(--ink-900)",
+                    marginBottom: "8px",
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  Deployment Initiated
+                </h3>
+                <p
+                  style={{
+                    fontFamily: "var(--font-inter), var(--font-body)",
+                    fontSize: "14px",
+                    color: "var(--ink-500)",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  Our agents are now building the MVP for {details.startup.name}. We'll notify you when it&apos;s ready!
+                </p>
+              </div>
+            ) : isDeploying ? (
+              <div style={{ textAlign: "center" }}>
+                <div style={{ marginBottom: "12px" }}>
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style={{
+                      animation: "spin 1s linear infinite",
+                      transformOrigin: "center",
+                      display: "inline-block",
+                      transform: "scale(2)",
+                    }}
+                  >
+                    <circle
+                      cx="8"
+                      cy="8"
+                      r="6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeOpacity="0.25"
+                    />
+                    <path
+                      d="M8 2a6 6 0 0 1 6 6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="square"
+                    />
+                  </svg>
+                </div>
+                <h3
+                  style={{
+                    fontFamily: "var(--font-pt-mono), var(--font-title)",
+                    fontSize: "16px",
+                    color: "var(--ink-900)",
+                    marginBottom: "8px",
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  Deploying...
+                </h3>
+                <p
+                  style={{
+                    fontFamily: "var(--font-inter), var(--font-body)",
+                    fontSize: "14px",
+                    color: "var(--ink-500)",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  Building the resurrected MVP
+                </p>
+              </div>
+            ) : hasDeployment && deploymentUrl ? (
+              <Link
+                href={deploymentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "block",
+                  width: "100%",
+                  background: "var(--ink-900)",
+                  color: "var(--paper-000)",
+                  border: "1px solid var(--ink-900)",
+                  padding: "14px 16px",
+                  fontFamily: "var(--font-pt-mono), var(--font-title)",
+                  fontSize: "14px",
+                  letterSpacing: "-0.01em",
+                  cursor: "pointer",
+                  textDecoration: "none",
+                  textAlign: "center",
+                }}
+              >
+                Visit deployed MVP
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={handleDeploy}
+                disabled={isDeploying}
+                style={{
+                  width: "100%",
+                  background: "var(--ink-900)",
+                  color: "var(--paper-000)",
+                  border: "1px solid var(--ink-900)",
+                  padding: "14px 16px",
+                  fontFamily: "var(--font-pt-mono), var(--font-title)",
+                  fontSize: "14px",
+                  letterSpacing: "-0.01em",
+                  cursor: isDeploying ? "not-allowed" : "pointer",
+                  opacity: isDeploying ? 0.7 : 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                }}
+              >
+                {isDeploying && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style={{
+                      animation: "spin 1s linear infinite",
+                      transformOrigin: "center",
+                      display: "inline-block",
+                    }}
+                  >
+                    <circle
+                      cx="8"
+                      cy="8"
+                      r="6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeOpacity="0.25"
+                    />
+                    <path
+                      d="M8 2a6 6 0 0 1 6 6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="square"
+                    />
+                  </svg>
+                )}
+                {isDeploying ? "Deploying..." : "Deploy a resurrected MVP"}
+              </button>
+            )}
           </section>
 
           <section
+            className="relative"
             style={{
-              border: "1px solid var(--line-200)",
-              borderRadius: "12px",
               background: "var(--paper-000)",
               padding: "24px",
             }}
           >
+            <CornerAccents />
             <dl style={{ margin: 0, display: "grid", gap: "16px" }}>
               {details.facts.map((fact) => (
                 <div key={fact.label}>
