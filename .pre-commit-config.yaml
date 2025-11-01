@@ -1,0 +1,37 @@
+minimum_pre_commit_version: 2.16.0
+repos:
+  - repo: 'https://github.com/pre-commit/pre-commit-hooks'
+    rev: v2.3.0
+    hooks:
+      - id: check-docstring-first
+        types: [python]
+      - id: check-merge-conflict
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        types: [yaml]
+      - id: check-ast
+        types: [python]
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.3.1
+    hooks:
+      - id: autoflake
+        types: [python]
+        args: [--remove-all-unused-imports, --in-place]
+  - repo: 'https://github.com/psf/black'
+    rev: 23.3.0
+    hooks:
+      - id: black
+        types: [python]
+        args:
+          - --line-length=88
+          - --safe
+          - --target-version=py310
+        stages: [pre-commit]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        types: [python]
+        args:
+          - --profile=black
