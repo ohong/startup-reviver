@@ -1,39 +1,94 @@
-# startup-reviver
-Resurrect failed startups from the dead, reimagined for the AI era.
+# 🧟 Startup of the Dead
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+> **Resurrect failed YC startups for the AI era. Automatically.**
 
-## Getting Started
+A multi-agent system that researches dead startups, analyzes why they failed, and generates working MVPs reimagined with modern AI capabilities.
 
-First, run the development server:
+## 💀 The Motivation
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Great ideas often fail due to bad timing. A startup that couldn't make unit economics work in 2015 might thrive today with LLMs handling the expensive human labor. But manually researching, analyzing, and rebuilding these companies is time-consuming.
+
+What if an AI agent swarm could do it automatically?
+
+**Startup of the Dead** takes a failed YC company name and outputs:
+- Deep research report on what went wrong
+- Strategic analysis of how AI changes the game in 2025  
+- Complete technical specification
+- Working MVP codebase, ready to run
+
+Think of it as a startup resurrection machine.
+
+## 🔮 How It Works
+
+**Input:** Name of a defunct YC startup (e.g., "Homejoy")
+
+**Output:** Fully functional MVP rebuilt with AI
+
+### The Pipeline
+
+```
+User Input → Research → Strategy → Architecture → Code Generation → Working MVP
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**1. Research Agent** (Perplexity + Claude)
+- Searches for failure post-mortems, press coverage, founder reflections
+- Extracts why the startup shut down and what they were trying to solve
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**2. Strategy Agent** (Claude)
+- Analyzes each failure reason: still relevant in 2025? Can AI solve it?
+- Generates resurrection strategy with specific AI components
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**3. Architect Agent** (Claude)
+- Converts strategy into technical specification
+- Designs system architecture and tech stack
+- Defines 3-4 core MVP features
 
-## Learn More
+**4. Code Generation Team** (3 parallel agents)
+- **Frontend Agent:** React components, UI, API integration
+- **Backend Agent:** Express server, SQLite database, API endpoints  
+- **AI Agent:** Claude API integration, prompt engineering, intelligent features
 
-To learn more about Next.js, take a look at the following resources:
+All agents communicate via message queue, coordinating like a real engineering team.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Total pipeline time:** ~20-30 minutes per startup
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🛠 Tech Stack
 
-## Deploy on Vercel
+**Orchestration**
+- Mastra (agent framework)
+- Message queue for agent coordination
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Research & Analysis**  
+- Perplexity API (web research)
+- Claude Sonnet 4.5 (all agents)
+- YC Company API (startup data)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Generated Stack** (for resurrected startups)
+- Frontend: React, Tailwind CSS, Vite
+- Backend: Node.js, Express, SQLite
+- AI: Claude API via Anthropic SDK
+
+**Storage**
+- Research cache (JSON)
+- Generated code output directory
+
+## 🎯 Built For
+
+**The Summoners Track** - Agents that orchestrate other agents, end-to-end task completion
+
+## 🚀 Quick Start
+
+```bash
+# Input a dead startup
+node index.js --startup "Homejoy"
+
+# Watch the magic happen
+# Research → Strategy → Spec → Code → MVP
+
+# Output location
+./output/homejoy/
+```
+
+---
+
+*Built at the [AgentMail HackHalloween](https://events.ycombinator.com/agentmail-yc25) at YC - October 31, 2025*
