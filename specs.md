@@ -9,7 +9,7 @@ Multi-agent system that takes a failed YC startup name and outputs a working MVP
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│              ORCHESTRATOR AGENT (Mastra)                    │
+│                    ORCHESTRATOR AGENT                       │
 │         Routes messages, tracks progress, handles errors    │
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -17,7 +17,7 @@ Multi-agent system that takes a failed YC startup name and outputs a working MVP
                     ▼                    ▼
         ┌─────────────────┐    ┌──────────────────┐
         │  RESEARCH       │◄───┤  Message Queue   │
-        │  AGENT          │    │  (Agent Comms)   │
+        │  AGENT          │    │   (AgentMail)    │
         └─────────────────┘    └──────────────────┘
                 │                        ▲
                 ▼                        │
