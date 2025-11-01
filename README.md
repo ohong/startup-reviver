@@ -1,5 +1,7 @@
 # Startup Reviver
 
+> **Resurrect failed YC startups for the AI era in one click.**
+
 A minimal Next.js application for prompting the V0 Platform to build a project and deploying the generated version to Vercel. Everything needed to create → deploy → grab the URL lives in this repo; no dependency on the legacy `vibehacker` project.
 
 ## Requirements
@@ -30,6 +32,8 @@ A minimal Next.js application for prompting the V0 Platform to build a project a
 - Prefer the single-call `POST /api/autodeploy` if you want the server to handle generation and deployment in one request (see docs/autodeploy-api.md for details).
 
 Both API routes perform basic validation and bubble up V0/Vercel errors so they are easy to debug.
+
+What if an AI agent swarm could do it on their own? No human founder needed.
 
 ## API Reference
 - `POST /api/generate` – Body accepts `message` (string) plus optional `chatId`, `projectId`, `modelId`, `imageGenerations`, `thinking`, and `attachments`. Responds with the V0 `ChatDetail`.

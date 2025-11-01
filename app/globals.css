@@ -1,26 +1,99 @@
 @import "tailwindcss";
 
+/* Design System - Dither UI */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colors */
+  --ink-900: #0B0D0F;
+  --ink-700: #1C2024;
+  --ink-500: #4B5563;
+  --ink-400: #6B7280;
+
+  --paper-000: #FFFFFF;
+  --paper-050: #F7F8FA;
+  --paper-075: #F0F2F5;
+
+  --line-200: #E6E8EB;
+  --line-300: #DDE1E6;
+
+  --accent-blue-600: #2F6AFF;
+  --accent-blue-700: #1E56F0;
+  --accent-blue-100: #E8F0FF;
+
+  --accent-orange-500: #FF8A3A;
+  --accent-green-500: #17C964;
+  --accent-red-500: #F04438;
+
+  --overlay-900: rgba(11,13,15,.72);
+  --focus: #2F6AFF;
+
+  /* Fonts */
+  --font-title: "PT Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Source Code Pro", monospace;
+  --font-body: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-ink-900: var(--ink-900);
+  --color-ink-700: var(--ink-700);
+  --color-ink-500: var(--ink-500);
+  --color-ink-400: var(--ink-400);
+  
+  --color-paper-0: var(--paper-000);
+  --color-paper-50: var(--paper-050);
+  --color-paper-75: var(--paper-075);
+  
+  --color-line-200: var(--line-200);
+  --color-line-300: var(--line-300);
+  
+  --color-accent-blue-100: var(--accent-blue-100);
+  --color-accent-blue-600: var(--accent-blue-600);
+  --color-accent-blue-700: var(--accent-blue-700);
+  
+  --color-accent-orange-500: var(--accent-orange-500);
+  --color-accent-green-500: var(--accent-green-500);
+  --color-accent-red-500: var(--accent-red-500);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-title: var(--font-title);
+  --font-body: var(--font-body);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-900);
+  background: var(--paper-075);
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3,
+.title, .section-title, .toolbar-label, .metric-label {
+  font-family: var(--font-title);
+  letter-spacing: -0.01em;
+}
+
+.page-title {
+  font-size: 2.5rem;   /* 40px */
+  line-height: 3rem;   /* 48px */
+}
+
+.section-title {
+  font-size: 1.5rem;   /* 24px */
+  line-height: 2rem;   /* 32px */
+}
+
+/* Halftone effect */
+.halftone {
+  position: relative;
+  isolation: isolate;
+}
+
+.halftone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(currentColor 1px, transparent 1.6px) 0 0/6px 6px;
+  mix-blend-mode: multiply;
+  opacity: .18;
+  pointer-events: none;
 }
