@@ -16,7 +16,7 @@ Generate `spec.md` (<2000 words) - a technical specification with:
 1. **Executive Summary** (2-3 sentences): What we're building and why
 2. **Core Value Proposition**: The ONE problem this MVP solves for users
 3. **MVP Feature Set** (3-4 features MAX): Prioritize ruthlessly. What's the minimum to demonstrate value?
-4. **Technical Architecture**: 
+4. **Technical Architecture**:
    - Tech stack
    - Data flow diagram (ASCII or simple description)
    - File structure
@@ -99,7 +99,7 @@ Structure your spec.md as:
 ## Technical Architecture
 **Stack**: TypeScript, React, Vite, Tailwind CSS
 **Data Storage**: Local JSON files in /public/data/
-**File Structure**: 
+**File Structure**:
 ```
 /src
   /components

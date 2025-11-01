@@ -1,7 +1,8 @@
 from deepagents import create_deep_agent
 from dotenv import load_dotenv
-from prompts import get_prompt, research_orchestrator_prompt
-from tools import deep_research, web_search
+from tools import deep_research, web_search, get_company_details
+
+from prompts import get_prompt
 
 load_dotenv()
 
@@ -11,13 +12,13 @@ subagents = [
         "name": "scoping-agent",
         "description": "Scoping & hypotheses",
         "system_prompt": get_prompt("scoping-agent"),
-        "tools": [web_search],
+        "tools": [web_search, get_company_details],
     },
     {
         "name": "web-agent",
         "description": "Broad web search",
         "system_prompt": get_prompt("web-agent"),
-        "tools": [web_search],
+        "tools": [web_search, get_company_details],
     },
     {
         "name": "deep-agent",
@@ -29,13 +30,13 @@ subagents = [
         "name": "funding-agent",
         "description": "Funding dynamics",
         "system_prompt": get_prompt("funding-agent"),
-        "tools": [web_search, deep_research],
+        "tools": [web_search, deep_research, get_company_details],
     },
     {
         "name": "org-agent",
         "description": "Org & people",
         "system_prompt": get_prompt("org-agent"),
-        "tools": [deep_research],
+        "tools": [deep_research, get_company_details],
     },
     {
         "name": "gtm-agent",
@@ -62,8 +63,33 @@ subagents = [
         "tools": [web_search],
     },
     {
+        "name": "founder-retrospective-agent",
+        "description": "Founder retrospectives & post-mortems",
+        "system_prompt": get_prompt("founder-retrospective-agent"),
+        "tools": [web_search, deep_research, get_company_details],
+    },
+    {
+        "name": "rebuild-2025-agent",
+        "description": "2025 rebuild analysis with new tech",
+        "system_prompt": get_prompt("rebuild-2025-agent"),
+        "tools": [web_search, deep_research],
+    },
+    {
+        "name": "market-2025-agent",
+        "description": "Current market dynamics 2025",
+        "system_prompt": get_prompt("market-2025-agent"),
+        "tools": [web_search, deep_research],
+    },
+    {
+        "name": "format-agent",
+        "description": "Contrary Research format generation",
+        "system_prompt": get_prompt("format-agent"),
+        "tools": [deep_research],
+        "model": "openai:gpt-4o",
+    },
+    {
         "name": "synthesis-agent",
-        "description": "Causal synthesis",
+        "description": "Causal synthesis & Contrary Research report",
         "system_prompt": get_prompt("synthesis-agent"),
         "tools": [deep_research],
         "model": "openai:gpt-4o",
@@ -72,7 +98,7 @@ subagents = [
 
 agent = create_deep_agent(
     model="openai:gpt-4.1",  # default model for agents without overrides
-    system_prompt=research_orchestrator_prompt,  # orchestrator/system-level guidance
+    system_prompt=get_prompt("research-orchestrator-system-prompt"),
     subagents=subagents,
     debug=True,
 )
