@@ -6,9 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "call:test": "tsx scripts/place-call.ts",
+    "api:call": "tsx scripts/hit-outbound-api.ts",
+    "livekit:update-trunk": "tsx scripts/update-trunk.ts"
   },
   "dependencies": {
+    "livekit-server-sdk": "^2.14.0",
     "next": "16.0.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",

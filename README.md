@@ -35,6 +35,7 @@ Both API routes perform basic validation and bubble up V0/Vercel errors so they 
 - `POST /api/generate` – Body accepts `message` (string) plus optional `chatId`, `projectId`, `modelId`, `imageGenerations`, `thinking`, and `attachments`. Responds with the V0 `ChatDetail`.
 - `POST /api/deployments` – Body requires `projectId`, `chatId`, `versionId`. Responds with the V0 deployment object, including `webUrl` and `inspectorUrl`.
 - `POST /api/autodeploy` – Body requires `message` and optionally mirrors the fields from `/api/generate` plus timeout overrides. Responds with deployment metadata (`webUrl`, `deploymentId`, etc.) after generation and deployment complete.
+- `POST /api/calls/outbound` – Initiates a PSTN call via LiveKit SIP and (optionally) dispatches a room Agent to ask predefined questions. See `docs/livekit-outbound.md`.
 
 ## Scripts
 - `npm run dev` – Start the Next.js dev server
@@ -46,3 +47,5 @@ See `flow.md` for a command-line walkthrough of the same prompt → deploy workf
 
 ## Email Helper
 - Use `sendMail` from `lib/email.ts` to send transactional emails through Resend. Set `RESEND_FROM_EMAIL` (use `noreply@updates.tie.uz`) and see `docs/resend-email.md` for configuration and usage details.
+## LiveKit Outbound Calls
+- Configure LiveKit env vars in `.env.local` and follow `docs/livekit-outbound.md` to test an outbound call and configure an Agent for scripted Q&A.
