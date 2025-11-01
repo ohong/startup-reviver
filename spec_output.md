@@ -1,94 +1,78 @@
 ```markdown
-# DreamSpace MVP Technical Specification
+# AirGo MVP Technical Specification
 
 ## Executive Summary
-We are building DreamSpace, an interactive platform that helps users visualize and organize their dreams and aspirations through a digital vision board. The concept is designed for the modern user, leveraging local storage and client-side technology to facilitate personal creativity and planning without the need for a backend.
+AirGo is a web-based platform aimed at simplifying air travel logistics for users by providing streamlined itineraries, virtual packing lists, and airline recommendation systems. By addressing issues of flight coordination and travel preparation, we can leverage modern tech to provide a user-friendly experience without unnecessary complexity.
 
 ## Core Value Proposition
-DreamSpace solves the problem of abstractly visualizing personal goals by allowing users to create, manage, and interact with a personalized visual board that represents their dreams.
+AirGo helps travelers easily organize their trip itineraries and packing needs, reducing travel-related stress.
 
 ## MVP Features
-### Feature 1: Create Dream Card
-**User Story**: As a user, I want to create a dream card so that I can visualize my goals individually.
+### Feature 1: Trip Itinerary Organizer
+**User Story**: As a traveler, I want to create and view my trip itineraries so that I can manage my travel plans in one place.  
 **Acceptance Criteria**:
-- [ ] User can input a title and a description for the dream card.
-- [ ] Dream cards are added to the visual board and persisted in local storage.
-- [ ] User can see newly created cards immediately on the board.
+- [ ] Users can input travel details (flight information, hotel bookings).
+- [ ] Itineraries save locally in JSON format and reload on page refresh.
+- [ ] Users can view past itineraries.
 
-### Feature 2: Edit Dream Card
-**User Story**: As a user, I want to edit the details of a dream card so that I can update my aspirations.
+### Feature 2: Virtual Packing List Generator
+**User Story**: As a traveler, I want to generate a packing list based on my itinerary so that I don’t forget essential items.  
 **Acceptance Criteria**:
-- [ ] User can click on a dream card to activate edit mode.
-- [ ] Changes to title and description are saved locally.
-- [ ] Updated cards immediately reflect changes on the visual board.
+- [ ] Users can generate a packing list that corresponds to their trip details.
+- [ ] Packing lists save locally in JSON format and can be edited by users.
+- [ ] Users receive suggestions based on trip length and destination climate.
 
-### Feature 3: Delete Dream Card
-**User Story**: As a user, I want to delete a dream card so that I can remove outdated or undesired goals.
+### Feature 3: Recommended Airlines
+**User Story**: As a traveler, I want to receive airline recommendations based on my travel destination so that I can choose the best option for my needs.  
 **Acceptance Criteria**:
-- [ ] User can delete a dream card via a delete button.
-- [ ] Deleted cards are removed permanently from the visual board and local storage.
-- [ ] Visual board updates immediately to reflect deletion.
-
-### Feature 4: Share Dream Board (via Link)
-**User Story**: As a user, I want to generate a shareable link for my dream board so that I can share my aspirations with friends.
-**Acceptance Criteria**:
-- [ ] User can click a button to generate a unique link that encodes current dream board data.
-- [ ] Link displays as a shareable text that can be copied.
-- [ ] Accessing the link on another device displays the same dream board.
+- [ ] Users can input their destination and receive a list of recommended airlines.
+- [ ] Recommendations are displayed as a simple list with pros and cons stored in local JSON.
+- [ ] Users can save their preferred airlines locally.
 
 ## Technical Architecture
-**Stack**: TypeScript, React 18+, Vite, Tailwind CSS
-**Data Storage**: Local storage for dream cards (no external databases used)
+**Stack**: TypeScript, React, Vite, Tailwind CSS  
+**Data Storage**: Local JSON files in /public/data/  
 **File Structure**:
 ```
 /src
   /components
-    DreamCard.tsx
-    DreamBoard.tsx
-    Header.tsx
-    ShareLink.tsx
+    TripOrganizer.tsx
+    PackingList.tsx
+    AirlineRecommendations.tsx
   /hooks
     useLocalStorage.ts
   /utils
-    storage.ts
+    jsonUtil.ts
   /types
-    dream.ts
+    itineraryTypes.ts
 App.tsx
 ```
 
 ## Functional Requirements
-### Feature 1: Create Dream Card
-- **User Story**: As a user, I want to create a dream card so that I can visualize my goals individually.
-- **Acceptance Criteria**:
-  - On clicking the "Add Card" button, a form appears allowing input for title and description.
-  - On submission, a new dream card is created and stored in local storage.
-  - The visual board displays the new card without needing to refresh.
+### Feature 1: Trip Itinerary Organizer
+**User Story**: As a traveler, I want to create and view my trip itineraries so that I can manage my travel plans in one place.  
+**Acceptance Criteria**:
+- [ ] Users can input travel details (flight information, hotel bookings) through a form.
+- [ ] Data is stored in localStorage under a `tripItineraries` key and can be retrieved after page reload.
+- [ ] Users can view their itineraries on a dedicated page.
 
-### Feature 2: Edit Dream Card
-- **User Story**: As a user, I want to edit the details of a dream card so that I can update my aspirations.
-- **Acceptance Criteria**:
-  - Dream cards are clickable to enter edit mode.
-  - Alterations are reflected in local storage immediately upon saving.
-  - Edited dream cards show the latest changes visually without page reloads.
+### Feature 2: Virtual Packing List Generator
+**User Story**: As a traveler, I want to generate a packing list based on my itinerary so that I don’t forget essential items.  
+**Acceptance Criteria**:
+- [ ] Users can view and customize a generated packing list when they click on their itinerary.
+- [ ] Packing list data is stored in localStorage under a `packingLists` key.
+- [ ] Default suggested items appear based on itinerary location added in terms of weather and trip length.
 
-### Feature 3: Delete Dream Card
-- **User Story**: As a user, I want to delete a dream card so that I can remove outdated or undesired goals.
-- **Acceptance Criteria**:
-  - Each card includes a delete button to remove it.
-  - Users receive confirmation before deleting.
-  - Users see their dream board update immediately post-deletion, with changes saved in local storage.
-
-### Feature 4: Share Dream Board (via Link)
-- **User Story**: As a user, I want to generate a shareable link for my dream board so that I can share my aspirations with friends.
-- **Acceptance Criteria**:
-  - A button for generating the shareable link is visually presented to users.
-  - The link encodes the current state of the dream board, enabling others to access it.
-  - Accessing the link loads the board properly, showcasing the correct dream cards.
+### Feature 3: Recommended Airlines
+**User Story**: As a traveler, I want to receive airline recommendations based on my travel destination so that I can choose the best option for my needs.  
+**Acceptance Criteria**:
+- [ ] Users input a destination through a search box and receive airline recommendations rendered in a list format.
+- [ ] Recommendations include airline name, pros, and cons as specified in local JSON file.
+- [ ] Users can save their preferred airlines in localStorage under a `preferredAirlines` key.
 
 ## Implementation Notes
-- Focus on simplicity and interaction without backend dependencies. All data is managed via local storage.
-- Ensure user experience remains fluid and immediate, particularly during creation and editing of dream cards.
-- Shareable links should encode the relevant data succinctly to avoid potential URL length issues.
-- Use JSON.stringify and JSON.parse for local storage operations to ensure all data is saved correctly.
-
+- Utilize localStorage for all data persistence to align with the client-side only architecture.
+- Implement a simple form validation to ensure users provide complete trip details.
+- Ensure the UI adheres to accessibility guidelines and provides a clear hierarchy in content organization.
+- Maintain a focus on performance, ensuring all interactions are smooth and the application responds within 200ms.
 ```
