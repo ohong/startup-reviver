@@ -1,6 +1,6 @@
 # 🧟 Startup of the Dead
 
-> **Resurrect failed YC startups for the AI era. Automatically.**
+> **Resurrect failed YC startups for the AI era in one click.**
 
 A multi-agent system that researches dead startups, analyzes why they failed, and generates working MVPs reimagined with modern AI capabilities.
 
@@ -8,7 +8,7 @@ A multi-agent system that researches dead startups, analyzes why they failed, an
 
 Great ideas often fail due to bad timing. A startup that couldn't make unit economics work in 2015 might thrive today with LLMs handling the expensive human labor. But manually researching, analyzing, and rebuilding these companies is time-consuming.
 
-What if an AI agent swarm could do it automatically?
+What if an AI agent swarm could do it on their own? No human founder needed.
 
 **Startup of the Dead** takes a failed YC company name and outputs:
 - Deep research report on what went wrong
