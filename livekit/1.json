@@ -1,0 +1,9 @@
+{
+  "trunk": {
+    "name": "Hackathon777",
+    "address": "hackathon777.pstn.twilio.com",
+    "numbers": ["+14156830572"],
+    "authUsername": "Hackathon777",
+    "authPassword": "Hackathon777"
+  }
+}

@@ -43,3 +43,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+vibehacker
+vibesdk
+
+# IDE and tooling
+.kiro/
+.vscode/

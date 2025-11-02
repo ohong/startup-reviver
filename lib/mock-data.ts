@@ -141,6 +141,16 @@ export const mockStartups: Startup[] = [
     status: "Inactive"
   },
   {
+    slug: "fetchr",
+    name: "Fetchr",
+    small_logo_thumb_url: "https://www.ycombinator.com/companies/fetchr/card_image",
+    one_liner: "AI personal shopper for clothes",
+    batch: "W23",
+    launched_at: 1672531200,
+    website: "https://www.ycombinator.com/companies/fetchr",
+    status: "Inactive"
+  },
+  {
     slug: "mealkitt",
     name: "Mealkitt",
     small_logo_thumb_url: "https://www.ycombinator.com/companies/mealkitt/card_image",
@@ -161,5 +171,4 @@ export const mockStartups: Startup[] = [
     status: "Active"
   }
 ];
-
 

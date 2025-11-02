@@ -75,7 +75,7 @@ Multi-agent system that takes a failed YC startup name and outputs a working MVP
 **Analysis Framework:**
 - For each failure reason: Is this still a problem in 2025? Can AI solve this? What's changed?
 
-**Output:** 
+**Output:**
 - Executive summary (what/why failed/why now)
 - Failure analysis (original reasons + 2025 mitigations using AI)
 - Resurrection strategy (core value prop, modern approach, specific AI components, differentiators)
@@ -142,8 +142,8 @@ BACKEND: Updates code, sends CODE_UPDATE notification
 
 ## Demo Flow (5 minutes total)
 
-**Slide 1 (30s):** Problem - thousands of startups fail, many were just too early  
-**Slide 2 (30s):** Solution - show architecture diagram  
+**Slide 1 (30s):** Problem - thousands of startups fail, many were just too early
+**Slide 2 (30s):** Solution - show architecture diagram
 **Slide 3 (3min):** Live demo
 - Enter "Homejoy"
 - Show real-time progress for each agent
@@ -151,17 +151,17 @@ BACKEND: Updates code, sends CODE_UPDATE notification
 - Show generated file tree
 - Run MVP locally (or screen recording backup)
 
-**Slide 4 (45s):** Why this wins - hits all 5 judging criteria  
+**Slide 4 (45s):** Why this wins - hits all 5 judging criteria
 **Slide 5 (15s):** Vision - startup resurrection as a service
 
 ---
 
 ## Success Metrics
 
-**Functionality (5/5):** Pipeline completes end-to-end, code runs locally  
-**Innovation (5/5):** Novel idea + sophisticated multi-agent coordination, not just a wrapper  
-**Technical Quality (4-5/5):** Clean architecture, message passing, error handling  
-**Impact (4-5/5):** Real-world application, perfect fit for "Agents that Coordinate" track  
+**Functionality (5/5):** Pipeline completes end-to-end, code runs locally
+**Innovation (5/5):** Novel idea + sophisticated multi-agent coordination, not just a wrapper
+**Technical Quality (4-5/5):** Clean architecture, message passing, error handling
+**Impact (4-5/5):** Real-world application, perfect fit for "Agents that Coordinate" track
 **Presentation (5/5):** Clear narrative, live demo, memorable concept
 
 **Projected Total: 23-25/25**

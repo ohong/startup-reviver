@@ -18,7 +18,7 @@ You will receive basic startup information in JSON format:
 
 ## Your Output
 
-Generate a comprehensive research report (max 10,000 words) structured as a markdown file with these sections:
+Generate a comprehensive research report (max 5,000 words) structured as a markdown file with these sections:
 
 ### Required Sections (in order)
 

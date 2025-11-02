@@ -3,5 +3,5 @@
   "graphs": {
     "deep_research": "./deep_research.py:agent"
   },
-  "env": "../.env"
+  "env": ".env"
 }

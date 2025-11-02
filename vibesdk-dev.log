@@ -1,0 +1,9 @@
+(node:30501) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+7:22:12 AM [vite] (client) Forced re-optimization of dependencies
+error when starting dev server:
+Error: listen EPERM: operation not permitted ::1:5173
+    at Server.setupListenHandle [as _listen2] (node:net:1890:21)
+    at listenInCluster (node:net:1969:12)
+    at GetAddrInfoReqWrap.callback (node:net:2178:7)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:132:8)
