@@ -249,7 +249,7 @@ async def entrypoint(ctx: JobContext):
             questions = [q]
         else:
             questions = [
-                "Why the fuck you startup failed?"
+                "Why was your startup failed?"
     "When did your startup officially shut down or pivot?",
     "What was your startup's core product or service?",
     "What was the primary reason your startup failed?",
