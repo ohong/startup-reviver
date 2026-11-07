@@ -20,7 +20,7 @@ Even the category leader Stitch Fix has been shrinking its active clients since 
 	3.	Evidence from founder: “we couldn’t scale”
 Calvin Chen’s Substack reflects a candid post-mortem: they shipped multiple approaches to AI-assisted shopping, but eventually moved on after concluding they could not scale the concept into a durable business.  ￼
 	4.	Competitive shakeouts signal structural headwinds
-The UK’s Thread—an AI-driven stylist competitor—collapsed and sold its IP to Marks & Spencer, which folded the technology into its own site. This shows that even well-known, venture-backed personalized fashion startups struggled to survive as standalone companies.  ￼
+The UK’s Thread—an AI-driven stylist competitor—collapsed and sold its IP to Marks & Spencer, which folded the technology into its own site. This shows that even well-known, venture-backed personalized fashion startups struggled to survive as standalone companies.
 	5.	Team continuity risk during early execution
 Chen has written about co-founder changes post-batch (“Suffering = Growth”), which—combined with the challenges above—likely compounded execution risk in a winner-take-most category.  ￼
 
